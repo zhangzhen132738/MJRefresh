@@ -67,10 +67,23 @@ if (state == oldState) return; \
 [super setState:state];
 
 // 异步主线程执行，不强持有Self
+//#define MJRefreshDispatchAsyncOnMainQueue(x) \
+//__weak typeof(self) weakSelf = self; \
+//dispatch_async(dispatch_get_main_queue(), ^{ \
+//typeof(weakSelf) self = weakSelf; \
+//{x} \
+//});
+
+//新版逻辑，旧版本已经在main queue，还dispatch_get_main_queue就会阻塞,等待当前main thread结束
+//有些动画线程就会出现时序错乱
 #define MJRefreshDispatchAsyncOnMainQueue(x) \
-__weak typeof(self) weakSelf = self; \
-dispatch_async(dispatch_get_main_queue(), ^{ \
-typeof(weakSelf) self = weakSelf; \
-{x} \
-});
+if ([NSThread isMainThread]) { \
+    {x}\
+}else {\
+    __weak typeof(self) weakSelf = self; \
+    dispatch_async(dispatch_get_main_queue(), ^{ \
+    typeof(weakSelf) self = weakSelf; \
+        {x} \
+    }); \
+}\
 

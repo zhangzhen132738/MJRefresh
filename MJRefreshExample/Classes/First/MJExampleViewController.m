@@ -29,6 +29,10 @@ static NSString *const MJExample30 = @"UIWebView";
 - (NSArray *)examples
 {
     if (!_examples) {
+        MJExample *examBug = [[MJExample alloc] init];
+        examBug.header = @"bug";
+        examBug.titles = @[@"bug"];
+        
         MJExample *exam0 = [[MJExample alloc] init];
         exam0.header = MJExample00;
         exam0.vcClass = [MJTableViewController class];
@@ -53,7 +57,7 @@ static NSString *const MJExample30 = @"UIWebView";
         exam3.titles = @[@"下拉刷新"];
         exam3.methods = @[@"example31"];
         
-        self.examples = @[exam0, exam1, exam2, exam3];
+        self.examples = @[examBug, exam0, exam1, exam2, exam3];
     }
     return _examples;
 }
@@ -119,6 +123,12 @@ static NSString *const MJExample30 = @"UIWebView";
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     MJExample *exam = self.examples[indexPath.section];
+    if ([exam.header isEqualToString:@"bug"]) {
+        [tableView.mj_header endRefreshing];
+        [tableView.mj_header beginRefreshing];
+        [tableView.mj_header endRefreshing];
+        return;
+    }
     UIViewController *vc = [[exam.vcClass alloc] init];
     vc.title = exam.titles[indexPath.row];
     [vc setValue:exam.methods[indexPath.row] forKeyPath:@"method"];
